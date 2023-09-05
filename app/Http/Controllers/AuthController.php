@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Str;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
@@ -87,5 +88,23 @@ class AuthController extends Controller
             'password'          => bcrypt($request->password),
             'remember_token'    => $token
         ]);
+
+        Mail::send('auth.verification-mail', ['user' => $user], function($mail) use($user) {
+            $mail->to($user->email);
+            $mail->subject('Account Verification');
+        });
+
+        return redirect('/')->with('message', 'Your account has been created. Please check your email for verification.');
+    }
+
+    public function verification(User $user, $token) {
+        if ($user->remember_token !== $token) {
+            return redirect('/')->with('error', 'Invalid token');
+        }
+
+        $user->email_verified_at = now();
+        $user->save();
+
+        return redirect('/')->with('message', 'Your account has been verified');
     }
 }

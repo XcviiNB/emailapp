@@ -15,5 +15,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', [AuthController::class, 'loginForm'])->name('login');
+
 Route::get('/register', [AuthController::class, 'registerForm']);
 Route::post('/register', [AuthController::class, 'register'])->name('register');
+
+Route::get('/verification/{user}/{token}', [AuthController::class, 'verification'])->name('verification');
